@@ -42,9 +42,9 @@ module Instagram
 
         case method
         when :get, :delete
-          request.url(URI.encode(path), options)
+          request.url(CGI.escape(path), options)
         when :post, :put
-          request.path = URI.encode(path)
+          request.path = CGI.escape(path)
           request.body = options unless options.empty?
         end
         if signature && !client_ips.nil?
@@ -70,7 +70,7 @@ module Instagram
     def generate_sig(endpoint, params, secret)
       sig = endpoint
       params.sort.map do |key, val|
-        sig += format("|%s=%s", key, val)
+        sig += Kernel::format("|%s=%s", key, val)
       end
       digest = OpenSSL::Digest.new("sha256")
       OpenSSL::HMAC.hexdigest(digest, secret, sig)
